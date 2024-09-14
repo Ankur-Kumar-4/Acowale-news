@@ -26,19 +26,21 @@ import {
   Flag,
   Newspaper,
   Calendar,
-  User,
+  ExternalLink,
 } from "lucide-react";
+import { fetchNews } from "@/services/newsService";
 
 interface Article {
-  id: number;
   title: string;
+  description: string;
   content: string;
-  category: string;
-  country: string;
-  language: string;
+  url: string;
   image: string;
-  author: string;
-  date: string;
+  publishedAt: string;
+  source: {
+    name: string;
+    url: string;
+  };
 }
 
 interface NewsApiResponse {
@@ -48,111 +50,6 @@ interface NewsApiResponse {
 }
 
 // Mock API function
-const fetchNews = async (
-  page: number,
-  searchTerm: string,
-  category: string,
-  country: string,
-  language: string
-): Promise<NewsApiResponse> => {
-  // Simulate API call
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
-  const mockArticles: Article[] = [
-    {
-      id: 1,
-      title: "Breaking News: Global Summit Reaches Climate Agreement",
-      content:
-        "World leaders have come to a historic agreement on climate change, pledging to reduce carbon emissions by 50% by 2030.",
-      category: "Politics",
-      country: "Global",
-      language: "English",
-      image:
-        "https://images.unsplash.com/photo-1526948128573-703ee1aeb6fa?w=300&h=200&fit=crop",
-      author: "Jane Doe",
-      date: "2023-06-15",
-    },
-    {
-      id: 2,
-      title: "Tech Giants Unveil Revolutionary AI Technology",
-      content:
-        "Silicon Valley's top companies have jointly announced a breakthrough in artificial intelligence that promises to transform various industries.",
-      category: "Technology",
-      country: "USA",
-      language: "English",
-      image:
-        "https://images.unsplash.com/photo-1518770660439-4636190af475?w=300&h=200&fit=crop",
-      author: "John Smith",
-      date: "2023-06-14",
-    },
-    {
-      id: 3,
-      title: "Underdog Team Clinches World Cup in Thrilling Final",
-      content:
-        "In a stunning turn of events, the underdog national team has won the World Cup, beating the favorites in a nail-biting penalty shootout.",
-      category: "Sports",
-      country: "Brazil",
-      language: "Portuguese",
-      image:
-        "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=300&h=200&fit=crop",
-      author: "Carlos Silva",
-      date: "2023-06-13",
-    },
-    {
-      id: 4,
-      title: "Global Economy Shows Signs of Recovery Post-Pandemic",
-      content:
-        "Economic indicators suggest a robust recovery is underway, with growth rates surpassing pre-pandemic levels in several key markets.",
-      category: "Economy",
-      country: "Germany",
-      language: "German",
-      image:
-        "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=300&h=200&fit=crop",
-      author: "Hans Mueller",
-      date: "2023-06-12",
-    },
-    {
-      id: 5,
-      title: "Blockbuster Movie Breaks All-Time Box Office Records",
-      content:
-        "The latest installment of a popular franchise has shattered global box office records, grossing over $1 billion in its opening weekend.",
-      category: "Entertainment",
-      country: "France",
-      language: "French",
-      image:
-        "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=300&h=200&fit=crop",
-      author: "Marie Dubois",
-      date: "2023-06-11",
-    },
-    {
-      id: 6,
-      title: "Breakthrough in Renewable Energy Storage Announced",
-      content:
-        "Scientists have developed a new type of battery that could make renewable energy storage more efficient and affordable, potentially accelerating the transition to clean energy.",
-      category: "Science",
-      country: "Japan",
-      language: "Japanese",
-      image:
-        "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=300&h=200&fit=crop",
-      author: "Yuki Tanaka",
-      date: "2023-06-10",
-    },
-  ];
-
-  const filteredArticles = mockArticles.filter(
-    (article) =>
-      article.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      (category === "all" || article.category === category) &&
-      (country === "all" || article.country === country) &&
-      (language === "all" || article.language === language)
-  );
-
-  return {
-    articles: filteredArticles,
-    totalPages: 3, // Mock total pages
-    currentPage: page,
-  };
-};
 
 export default function NewsApp() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -167,15 +64,20 @@ export default function NewsApp() {
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
-      const result = await fetchNews(
-        currentPage,
-        searchTerm,
-        category,
-        country,
-        language
-      );
-      setArticles(result.articles);
-      setTotalPages(result.totalPages);
+      console.log({ searchTerm, category, country, language, currentPage }); // Log state values
+      try {
+        const result = await fetchNews(
+          currentPage,
+          searchTerm,
+          category,
+          country,
+          language
+        );
+        setArticles(result.articles);
+        setTotalPages(result.totalPages);
+      } catch (error: any) {
+        console.error(error.message);
+      }
       setIsLoading(false);
     };
 
@@ -235,7 +137,7 @@ export default function NewsApp() {
             />
             <Search className="absolute left-3 top-2 h-5 w-5 text-gray-400" />
           </div>
-          <div className="flex flex-wrap gap-4 ">
+          <div className="flex flex-wrap gap-4">
             <Select value={category} onValueChange={setCategory}>
               <SelectTrigger className="w-[180px]">
                 <Globe className="mr-2 h-4 w-4" />
@@ -243,12 +145,10 @@ export default function NewsApp() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
-                <SelectItem value="Politics">Politics</SelectItem>
-                <SelectItem value="Technology">Technology</SelectItem>
-                <SelectItem value="Sports">Sports</SelectItem>
-                <SelectItem value="Economy">Economy</SelectItem>
-                <SelectItem value="Entertainment">Entertainment</SelectItem>
-                <SelectItem value="Science">Science</SelectItem>
+                <SelectItem value="technology">Technology</SelectItem>
+                <SelectItem value="politics">Politics</SelectItem>
+                <SelectItem value="business">Business</SelectItem>
+                <SelectItem value="science">Science</SelectItem>
               </SelectContent>
             </Select>
             <Select value={country} onValueChange={setCountry}>
@@ -258,12 +158,36 @@ export default function NewsApp() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Countries</SelectItem>
-                <SelectItem value="USA">USA</SelectItem>
-                <SelectItem value="Japan">Japan</SelectItem>
-                <SelectItem value="Brazil">Brazil</SelectItem>
-                <SelectItem value="Germany">Germany</SelectItem>
-                <SelectItem value="France">France</SelectItem>
-                <SelectItem value="Global">Global</SelectItem>
+                <SelectItem value="au">Australia</SelectItem>
+                <SelectItem value="br">Brazil</SelectItem>
+                <SelectItem value="ca">Canada</SelectItem>
+                <SelectItem value="cn">China</SelectItem>
+                <SelectItem value="eg">Egypt</SelectItem>
+                <SelectItem value="fr">France</SelectItem>
+                <SelectItem value="de">Germany</SelectItem>
+                <SelectItem value="gr">Greece</SelectItem>
+                <SelectItem value="hk">Hong Kong</SelectItem>
+                <SelectItem value="in">India</SelectItem>
+                <SelectItem value="ie">Ireland</SelectItem>
+                <SelectItem value="il">Israel</SelectItem>
+                <SelectItem value="it">Italy</SelectItem>
+                <SelectItem value="jp">Japan</SelectItem>
+                <SelectItem value="nl">Netherlands</SelectItem>
+                <SelectItem value="no">Norway</SelectItem>
+                <SelectItem value="pk">Pakistan</SelectItem>
+                <SelectItem value="pe">Peru</SelectItem>
+                <SelectItem value="ph">Philippines</SelectItem>
+                <SelectItem value="pt">Portugal</SelectItem>
+                <SelectItem value="ro">Romania</SelectItem>
+                <SelectItem value="ru">Russian Federation</SelectItem>
+                <SelectItem value="sg">Singapore</SelectItem>
+                <SelectItem value="es">Spain</SelectItem>
+                <SelectItem value="se">Sweden</SelectItem>
+                <SelectItem value="ch">Switzerland</SelectItem>
+                <SelectItem value="tw">Taiwan</SelectItem>
+                <SelectItem value="ua">Ukraine</SelectItem>
+                <SelectItem value="gb">United Kingdom</SelectItem>
+                <SelectItem value="us">United States</SelectItem>
               </SelectContent>
             </Select>
             <Select value={language} onValueChange={setLanguage}>
@@ -273,11 +197,28 @@ export default function NewsApp() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Languages</SelectItem>
-                <SelectItem value="English">English</SelectItem>
-                <SelectItem value="Japanese">Japanese</SelectItem>
-                <SelectItem value="Portuguese">Portuguese</SelectItem>
-                <SelectItem value="German">German</SelectItem>
-                <SelectItem value="French">French</SelectItem>
+                <SelectItem value="ar">Arabic</SelectItem>
+                <SelectItem value="zh">Chinese</SelectItem>
+                <SelectItem value="nl">Dutch</SelectItem>
+                <SelectItem value="en">English</SelectItem>
+                <SelectItem value="fr">French</SelectItem>
+                <SelectItem value="de">German</SelectItem>
+                <SelectItem value="el">Greek</SelectItem>
+                <SelectItem value="he">Hebrew</SelectItem>
+                <SelectItem value="hi">Hindi</SelectItem>
+                <SelectItem value="it">Italian</SelectItem>
+                <SelectItem value="ja">Japanese</SelectItem>
+                <SelectItem value="ml">Malayalam</SelectItem>
+                <SelectItem value="mr">Marathi</SelectItem>
+                <SelectItem value="no">Norwegian</SelectItem>
+                <SelectItem value="pt">Portuguese</SelectItem>
+                <SelectItem value="ro">Romanian</SelectItem>
+                <SelectItem value="ru">Russian</SelectItem>
+                <SelectItem value="es">Spanish</SelectItem>
+                <SelectItem value="sv">Swedish</SelectItem>
+                <SelectItem value="ta">Tamil</SelectItem>
+                <SelectItem value="te">Telugu</SelectItem>
+                <SelectItem value="uk">Ukrainian</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -296,7 +237,7 @@ export default function NewsApp() {
             >
               {articles.map((article: Article, index: number) => (
                 <motion.div
-                  key={article.id}
+                  key={index}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
@@ -310,7 +251,7 @@ export default function NewsApp() {
                         className="w-full h-48 object-cover"
                       />
                       <div className="absolute top-0 left-0 bg-blue-600 text-white px-2 py-1 text-sm rounded-br-lg">
-                        {article.category}
+                        {article.source.name}
                       </div>
                     </div>
                     <CardHeader>
@@ -320,18 +261,25 @@ export default function NewsApp() {
                     </CardHeader>
                     <CardContent>
                       <p className="line-clamp-3 text-gray-600">
-                        {article.content}
+                        {article.description}
                       </p>
                     </CardContent>
                     <CardFooter className="flex justify-between items-center text-sm text-gray-500">
                       <div className="flex items-center">
-                        <User className="h-4 w-4 mr-1" />
-                        <span>{article.author}</span>
-                      </div>
-                      <div className="flex items-center">
                         <Calendar className="h-4 w-4 mr-1" />
-                        <span>{article.date}</span>
+                        <span>
+                          {new Date(article.publishedAt).toLocaleDateString()}
+                        </span>
                       </div>
+                      <a
+                        href={article.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center text-blue-600 hover:text-blue-800"
+                      >
+                        Read More
+                        <ExternalLink className="h-4 w-4 ml-1" />
+                      </a>
                     </CardFooter>
                     <div className="h-1 bg-gradient-to-r from-blue-500 to-blue-600"></div>
                   </Card>
@@ -344,11 +292,15 @@ export default function NewsApp() {
             No articles found. Try adjusting your search or filters.
           </div>
         )}
-        {articles.length > 0 && (
+        {/* {articles.length > 0 && (
           <div className="mt-8 flex justify-center">
-            <Pagination />
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
           </div>
-        )}
+        )} */}
       </main>
     </div>
   );
