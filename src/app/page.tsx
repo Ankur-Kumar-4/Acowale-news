@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -18,7 +17,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Pagination } from "@/components/ui/pagination";
 import {
   Search,
   Globe,
@@ -43,11 +41,11 @@ interface Article {
   };
 }
 
-interface NewsApiResponse {
-  articles: Article[];
-  totalPages: number;
-  currentPage: number;
-}
+// interface NewsApiResponse {
+//   articles: Article[];
+//   totalPages: number;
+//   currentPage: number;
+// }
 
 // Mock API function
 
@@ -60,6 +58,8 @@ export default function NewsApp() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+
+  console.log(totalPages);
 
   useEffect(() => {
     const fetchData = async () => {

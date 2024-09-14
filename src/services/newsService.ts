@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // Ensure BASE_URL is always a string
-const BASE_URL = (process.env.BASE_URL as string) || "http://localhost:5000"; // Fallback URL
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL; // Fallback URL
 
 interface Source {
   name: string;
