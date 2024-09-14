@@ -27,6 +27,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { fetchNews } from "@/services/newsService";
+import { Pagination } from "@/components/Pagination";
 
 interface Article {
   title: string;
@@ -41,13 +42,11 @@ interface Article {
   };
 }
 
-// interface NewsApiResponse {
-//   articles: Article[];
-//   totalPages: number;
-//   currentPage: number;
-// }
-
-// Mock API function
+interface NewsApiResponse {
+  articles: Article[];
+  totalPages: number;
+  currentPage: number;
+}
 
 export default function NewsApp() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -59,14 +58,11 @@ export default function NewsApp() {
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
 
-  console.log(totalPages);
-
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
-      console.log({ searchTerm, category, country, language, currentPage }); // Log state values
       try {
-        const result = await fetchNews(
+        const result: NewsApiResponse = await fetchNews(
           currentPage,
           searchTerm,
           category,
@@ -76,7 +72,9 @@ export default function NewsApp() {
         setArticles(result.articles);
         setTotalPages(result.totalPages);
       } catch (error: any) {
-        console.error(error.message);
+        console.error("Error fetching news:", error.message);
+        setArticles([]);
+        setTotalPages(1);
       }
       setIsLoading(false);
     };
@@ -158,36 +156,11 @@ export default function NewsApp() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Countries</SelectItem>
-                <SelectItem value="au">Australia</SelectItem>
-                <SelectItem value="br">Brazil</SelectItem>
-                <SelectItem value="ca">Canada</SelectItem>
-                <SelectItem value="cn">China</SelectItem>
-                <SelectItem value="eg">Egypt</SelectItem>
-                <SelectItem value="fr">France</SelectItem>
-                <SelectItem value="de">Germany</SelectItem>
-                <SelectItem value="gr">Greece</SelectItem>
-                <SelectItem value="hk">Hong Kong</SelectItem>
-                <SelectItem value="in">India</SelectItem>
-                <SelectItem value="ie">Ireland</SelectItem>
-                <SelectItem value="il">Israel</SelectItem>
-                <SelectItem value="it">Italy</SelectItem>
-                <SelectItem value="jp">Japan</SelectItem>
-                <SelectItem value="nl">Netherlands</SelectItem>
-                <SelectItem value="no">Norway</SelectItem>
-                <SelectItem value="pk">Pakistan</SelectItem>
-                <SelectItem value="pe">Peru</SelectItem>
-                <SelectItem value="ph">Philippines</SelectItem>
-                <SelectItem value="pt">Portugal</SelectItem>
-                <SelectItem value="ro">Romania</SelectItem>
-                <SelectItem value="ru">Russian Federation</SelectItem>
-                <SelectItem value="sg">Singapore</SelectItem>
-                <SelectItem value="es">Spain</SelectItem>
-                <SelectItem value="se">Sweden</SelectItem>
-                <SelectItem value="ch">Switzerland</SelectItem>
-                <SelectItem value="tw">Taiwan</SelectItem>
-                <SelectItem value="ua">Ukraine</SelectItem>
-                <SelectItem value="gb">United Kingdom</SelectItem>
                 <SelectItem value="us">United States</SelectItem>
+                <SelectItem value="gb">United Kingdom</SelectItem>
+                <SelectItem value="ca">Canada</SelectItem>
+                <SelectItem value="au">Australia</SelectItem>
+                <SelectItem value="in">India</SelectItem>
               </SelectContent>
             </Select>
             <Select value={language} onValueChange={setLanguage}>
@@ -197,28 +170,11 @@ export default function NewsApp() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Languages</SelectItem>
-                <SelectItem value="ar">Arabic</SelectItem>
-                <SelectItem value="zh">Chinese</SelectItem>
-                <SelectItem value="nl">Dutch</SelectItem>
                 <SelectItem value="en">English</SelectItem>
+                <SelectItem value="es">Spanish</SelectItem>
                 <SelectItem value="fr">French</SelectItem>
                 <SelectItem value="de">German</SelectItem>
-                <SelectItem value="el">Greek</SelectItem>
-                <SelectItem value="he">Hebrew</SelectItem>
-                <SelectItem value="hi">Hindi</SelectItem>
                 <SelectItem value="it">Italian</SelectItem>
-                <SelectItem value="ja">Japanese</SelectItem>
-                <SelectItem value="ml">Malayalam</SelectItem>
-                <SelectItem value="mr">Marathi</SelectItem>
-                <SelectItem value="no">Norwegian</SelectItem>
-                <SelectItem value="pt">Portuguese</SelectItem>
-                <SelectItem value="ro">Romanian</SelectItem>
-                <SelectItem value="ru">Russian</SelectItem>
-                <SelectItem value="es">Spanish</SelectItem>
-                <SelectItem value="sv">Swedish</SelectItem>
-                <SelectItem value="ta">Tamil</SelectItem>
-                <SelectItem value="te">Telugu</SelectItem>
-                <SelectItem value="uk">Ukrainian</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -292,7 +248,7 @@ export default function NewsApp() {
             No articles found. Try adjusting your search or filters.
           </div>
         )}
-        {/* {articles.length > 0 && (
+        {articles.length > 0 && (
           <div className="mt-8 flex justify-center">
             <Pagination
               currentPage={currentPage}
@@ -300,7 +256,7 @@ export default function NewsApp() {
               onPageChange={handlePageChange}
             />
           </div>
-        )} */}
+        )}
       </main>
     </div>
   );
