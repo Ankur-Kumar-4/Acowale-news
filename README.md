@@ -1,4 +1,5 @@
 # Acowale-news
+
 A responsive and dynamic news aggregator web application that allows users to search and filter news articles by category, country, and language. The app integrates a custom API to fetch news articles and presents them in a clean, user-friendly interface with pagination.
 
 Project Setup
@@ -59,7 +60,6 @@ Copy code
 npm start
 The backend server will run on http://localhost:5000.
 
-
 Overview of Approach
 Frontend (Next.js): Utilized React hooks and Framer Motion to build a dynamic and interactive news interface. Data fetching is handled with a service-based approach using Axios to call the backend API. The UI is designed using Tailwind CSS and Lucide icons to maintain a responsive and modern layout.
 
@@ -77,5 +77,5 @@ Pagination Handling: Implementing pagination required managing both frontend and
 Deployment: Deploying the project involved setting up Firebase Hosting for the frontend and ensuring the backend API endpoint was accessible. Handling CORS and other deployment-related configurations was key to ensuring smooth cross-origin requests between frontend and backend.
 
 Links
-Live App: ACONEWS on Firebase
+Live App: https://aconews-84f4a.web.app/
 GitHub Repository backed : https://github.com/Ankur-Kumar-4/Acowale-news-be
